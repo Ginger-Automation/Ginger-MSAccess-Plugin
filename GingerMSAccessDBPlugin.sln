@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GingerMSAccessDBPlugin", "GingerMSAccessDB\GingerMSAccessDBPlugin.csproj", "{B8BDF167-9BCA-4C19-85C6-87B338781F91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GingerMSAccessTest", "GingerMSAccessDBTest\GingerMSAccessTest.csproj", "{5230B930-5E96-4EAD-8970-48AE8DA0C452}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8BDF167-9BCA-4C19-85C6-87B338781F91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8BDF167-9BCA-4C19-85C6-87B338781F91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8BDF167-9BCA-4C19-85C6-87B338781F91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8BDF167-9BCA-4C19-85C6-87B338781F91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5230B930-5E96-4EAD-8970-48AE8DA0C452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5230B930-5E96-4EAD-8970-48AE8DA0C452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5230B930-5E96-4EAD-8970-48AE8DA0C452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5230B930-5E96-4EAD-8970-48AE8DA0C452}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60F14CA0-51F5-45AA-BC8E-9293DC7208A2}
+	EndGlobalSection
+EndGlobal
