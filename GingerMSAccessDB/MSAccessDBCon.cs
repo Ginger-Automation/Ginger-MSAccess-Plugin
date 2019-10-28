@@ -17,7 +17,6 @@ limitations under the License.
 #endregion
 
 
-using Amdocs.Ginger.CoreNET;
 using Amdocs.Ginger.Plugin.Core;
 using Amdocs.Ginger.Plugin.Core.Database;
 using Amdocs.Ginger.Plugin.Core.Reporter;
@@ -420,7 +419,10 @@ namespace MSAccessDB
                 }
                 finally
                 {
-                    reader.Close();
+                    if (reader != null)
+                    {
+                        reader.Close();
+                    }
                 }
             }
 
