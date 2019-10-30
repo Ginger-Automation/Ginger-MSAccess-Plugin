@@ -18,7 +18,7 @@ limitations under the License.
 
 
 using Amdocs.Ginger.Plugin.Core;
-using Amdocs.Ginger.Plugin.Core.Database;
+using Amdocs.Ginger.Plugin.Core.DatabaseLib;
 using Amdocs.Ginger.Plugin.Core.Reporter;
 using System;
 using System.Collections.Generic;
@@ -41,17 +41,27 @@ namespace MSAccessDB
         // private DateTime LastConnectionUsedTime;
         // public Dictionary<string, string> KeyvalParamatersList = new Dictionary<string, string>();
 
-        public string Name => throw new NotImplementedException();
+        [Default("Microsoft.ACE.OLEDB.12.0")]
+        [DatabaseParam("Provider")]
+        public string Provider { get; set; }
 
-        string mConnectionString;
-        public string ConnectionString { get => mConnectionString; set => mConnectionString = value; }
+        [DatabaseParam("DataSource")]
+        public string DataSource { get; set; }  // mdb file location
+        
+        string connectionString 
+        { 
+            get                  
+            {
+                string conn = $"Provider={Provider};Data Source={DataSource};";
+                return conn;
+            }
+        }        
 
         public bool TestConnection()
         {
             try
-            {
-                CheckConnectionString(ConnectionString);
-                using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+            {                
+                using (OleDbConnection conn = new OleDbConnection(connectionString))
                 {                    
                     conn.Open();
                     if (conn.State == ConnectionState.Open)
@@ -88,23 +98,12 @@ namespace MSAccessDB
             //    conn?.Dispose();
             //}
         }
-        private void CheckConnectionString(string connectionString)
-        {
-            ConnectionString = connectionString;
-            if (string.IsNullOrEmpty(connectionString))
-            {
-
-            }
-            if (!ConnectionString.Contains("Provider=Microsoft.ACE.OLEDB.12.0;Data Source="))
-            {
-                ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + ConnectionString + ";";
-            }
-        }
-        public DataTable DBQuery(string Query)
+        
+        public object ExecuteQuery(string Query)
         {
             DataTable results = new DataTable();
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+            
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
             {
                 OleDbCommand cmd = new OleDbCommand(Query, conn);
                 conn.Open();
@@ -224,50 +223,49 @@ namespace MSAccessDB
         //    return connStr;
         //}
 
-        public string GetSingleValue(string Table, string Column, string Where)
-        {
-            string sql = "SELECT {0} FROM {1} WHERE {2}";
-            sql = String.Format(sql, Column, Table, Where);
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
-            {
-                conn.Open();
-                String rc = null;
-                DbDataReader reader = null;
+        //public string GetSingleValue(string Table, string Column, string Where)
+        //{
+        //    string sql = "SELECT {0} FROM {1} WHERE {2}";
+        //    sql = String.Format(sql, Column, Table, Where);
+        //    CheckConnectionString(ConnectionString);
+        //    using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+        //    {
+        //        conn.Open();
+        //        String rc = null;
+        //        DbDataReader reader = null;
 
-                try
-                {
-                    DbCommand command = conn.CreateCommand();
-                    command.CommandText = sql;
-                    command.CommandType = CommandType.Text;
+        //        try
+        //        {
+        //            DbCommand command = conn.CreateCommand();
+        //            command.CommandText = sql;
+        //            command.CommandType = CommandType.Text;
 
-                    // Retrieve the data.
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        rc = reader[0].ToString();
-                        break; // We read only first row
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw e;
-                }
-                finally
-                {
-                    reader.Close();
-                }
+        //            // Retrieve the data.
+        //            reader = command.ExecuteReader();
+        //            while (reader.Read())
+        //            {
+        //                rc = reader[0].ToString();
+        //                break; // We read only first row
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            throw e;
+        //        }
+        //        finally
+        //        {
+        //            reader.Close();
+        //        }
 
-                return rc;
-            }
+        //        return rc;
+        //    }
 
             
-        }
+        //}
 
         public List<string> GetTablesColumns(string table)
-        {
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+        {            
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
             {
                 conn.Open();
                 DbDataReader reader = null;
@@ -290,7 +288,7 @@ namespace MSAccessDB
                 }
                 catch (Exception e)
                 {
-                    mReporter.ToLog2(eLogLevel.ERROR, "", e);
+                    mReporter.ToLog(eLogLevel.ERROR, "", e);
                     throw (e);
                 }
                 finally
@@ -351,89 +349,88 @@ namespace MSAccessDB
         //    return false;
         //}
 
-        public string RunUpdateCommand(string updateCmd, bool commit = true)
-        {
-            string result = "";
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
-            {
-                using (DbCommand command = conn.CreateCommand())
-                {
-                    conn.Open();
-                    try
-                    {
-                        if (commit)
-                        {
-                            tran = conn.BeginTransaction();
-                            // to Command object for a pending local transaction
-                            command.Connection = conn;
-                            command.Transaction = tran;
-                        }
-                        command.CommandText = updateCmd;
-                        command.CommandType = CommandType.Text;
+        //public string RunUpdateCommand(string updateCmd, bool commit = true)
+        //{
+        //    string result = "";
+        //    CheckConnectionString(ConnectionString);
+        //    using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+        //    {
+        //        using (DbCommand command = conn.CreateCommand())
+        //        {
+        //            conn.Open();
+        //            try
+        //            {
+        //                if (commit)
+        //                {
+        //                    tran = conn.BeginTransaction();
+        //                    // to Command object for a pending local transaction
+        //                    command.Connection = conn;
+        //                    command.Transaction = tran;
+        //                }
+        //                command.CommandText = updateCmd;
+        //                command.CommandType = CommandType.Text;
 
-                        result = command.ExecuteNonQuery().ToString();
-                        if (commit)
-                        {
-                            tran.Commit();
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        tran.Rollback();
-                        mReporter.ToLog2(eLogLevel.ERROR, "Commit failed for:" + updateCmd, e);
-                        throw e;
-                    }
-                }
-            }
-            return result;
-        }
+        //                result = command.ExecuteNonQuery().ToString();
+        //                if (commit)
+        //                {
+        //                    tran.Commit();
+        //                }
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                tran.Rollback();
+        //                mReporter.ToLog2(eLogLevel.ERROR, "Commit failed for:" + updateCmd, e);
+        //                throw e;
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
 
-        public int GetRecordCount(string Query)
-        {
-            string sql = "SELECT COUNT(1) FROM " + Query;
-            String rc = null;
-            DbDataReader reader = null;
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    DbCommand command = conn.CreateCommand();
-                    command.CommandText = sql;
-                    command.CommandType = CommandType.Text;
+        //public int GetRecordCount(string Query)
+        //{
+        //    string sql = "SELECT COUNT(1) FROM " + Query;
+        //    String rc = null;
+        //    DbDataReader reader = null;
+        //    CheckConnectionString(ConnectionString);
+        //    using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+        //    {
+        //        try
+        //        {
+        //            conn.Open();
+        //            DbCommand command = conn.CreateCommand();
+        //            command.CommandText = sql;
+        //            command.CommandType = CommandType.Text;
 
-                    // Retrieve the data.
-                    reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        rc = reader[0].ToString();
-                        break; // We read only first row = count of records
-                    }
-                }
-                catch (Exception e)
-                {
-                    mReporter.ToLog2(eLogLevel.ERROR, "Failed to execute query:" + sql, e);
-                    throw e;
-                }
-                finally
-                {
-                    if (reader != null)
-                    {
-                        reader.Close();
-                    }
-                }
-            }
+        //            // Retrieve the data.
+        //            reader = command.ExecuteReader();
+        //            while (reader.Read())
+        //            {
+        //                rc = reader[0].ToString();
+        //                break; // We read only first row = count of records
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            // mReporter.ToLog2(eLogLevel.ERROR, "Failed to execute query:" + sql, e);
+        //            throw e;
+        //        }
+        //        finally
+        //        {
+        //            if (reader != null)
+        //            {
+        //                reader.Close();
+        //            }
+        //        }
+        //    }
 
-            return Convert.ToInt32(rc);
-        }
+        //    return Convert.ToInt32(rc);
+        //}
 
         public List<string> GetTablesList(string Name = null)
         {
-            List<string> tables = new List<string>();
-            CheckConnectionString(ConnectionString);
-            using (OleDbConnection conn = new OleDbConnection(ConnectionString))
+            List<string> tables = new List<string>();            
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
             {
                 try
                 {
@@ -452,16 +449,27 @@ namespace MSAccessDB
                 }
                 catch (Exception e)
                 {
-                    mReporter.ToLog2(eLogLevel.ERROR, "Failed to get table list " + e);
+                    mReporter.ToLog(eLogLevel.ERROR, "Failed to get table list " + e);
                     throw (e);
                 }
             }
             return tables;
         }
 
-        public bool OpenConnection(Dictionary<string, string> parameters)
+        public bool OpenConnection()
         {
-            return true;
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
+            {                
+                conn.Open();
+                if (conn.State == ConnectionState.Open)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         public void InitReporter(IReporter reporter)

@@ -29,7 +29,7 @@ namespace GingerCoreNETUnitTest.Database
     
     [TestClass]
 
-    public class DataBaseUnitTest
+    public class MSAccessTest
     {
         public static MSAccessDBCon accessDB;
         static string mAccessDBFile = null;
@@ -39,30 +39,21 @@ namespace GingerCoreNETUnitTest.Database
         {            
             mAccessDBFile = TestResources.GetTestResourcesFile(@"SignUp.accdb");         
             accessDB = new MSAccessDBCon();
-            accessDB.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + mAccessDBFile + ";";
+            accessDB.Provider = "Microsoft.ACE.OLEDB.12.0";
+            accessDB.DataSource = mAccessDBFile;
+
+            accessDB.OpenConnection();
         }
 
-        [TestMethod]
-        public void TestConnection()
-        {
-            //Arrange            
-
-            //Act
-            Boolean testconn = accessDB.TestConnection();            
-
-            //Assert
-            Assert.IsTrue(testconn, "testconn");
-        }
+        
 
         [TestMethod]
         public void GetTableList()
         {
-            //Arrange
-            
-            List<string> Tables= null;
-            
+            //Arrange                       
+
             //Act
-             Tables= accessDB.GetTablesList();
+            List<string> Tables = accessDB.GetTablesList();
            
             //Assert
             Assert.AreEqual(1,Tables.Count);
@@ -91,62 +82,61 @@ namespace GingerCoreNETUnitTest.Database
             Assert.AreEqual("Mobile", Columns[8]);
         }
 
-        [TestMethod]
-        public void RunUpdateCommand()
-        {
-            //Arrange
-            string upadateCommand = "update Person set LName=\"EFGH\" where ID=1";
-            string result = null;
-            string updatedval = null;
+        //[TestMethod]
+        //public void RunUpdateCommand()
+        //{
+        //    //Arrange
+        //    string upadateCommand = "update Person set LName=\"EFGH\" where ID=1";
+        //    string result = null;
+        //    string updatedval = null;
             
-            //Act
-            result = accessDB.RunUpdateCommand(upadateCommand, false);
-            updatedval = accessDB.GetSingleValue("Person", "LName", "ID=1");
+        //    //Act
+        //    result = accessDB.ExecuteQuery(upadateCommand, false);
+        //    updatedval = accessDB.GetSingleValue("Person", "LName", "ID=1");
 
-            //Assert
-            Assert.AreEqual( "1", result);
-            Assert.AreEqual("EFGH", updatedval);
+        //    //Assert
+        //    Assert.AreEqual( "1", result);
+        //    Assert.AreEqual("EFGH", updatedval);
             
-        }
+        //}
 
-        [TestMethod]
-        public void GetSingleValue()
-        {
-            //Arrange
-            string result = null;
+        //[TestMethod]
+        //public void GetSingleValue()
+        //{
+        //    //Arrange
+        //    string result = null;
             
-            //Act
-            result = accessDB.GetSingleValue("Person", "FName", "ID=2");
+        //    //Act
+        //    result = accessDB.GetSingleValue("Person", "FName", "ID=2");
             
-            //Assert
-            Assert.AreEqual( "LMPO", result);
-        }
+        //    //Assert
+        //    Assert.AreEqual( "LMPO", result);
+        //}
 
         [TestMethod]
         public void DBQuery()
         {
-            //Arrange
-            DataTable result = null;
-            
+            //Arrange            
+
             //Act
-            result = accessDB.DBQuery("Select * from Person");
+            DataTable result = (DataTable)accessDB.ExecuteQuery("Select * from Person");
             
             //Assert
             Assert.AreEqual(2,result.Rows.Count);
         }
 
-        [TestMethod]
-        public void GetRecordCount()
-        {
-            //Arrange
-             int recordCount = 0;
+        //[TestMethod]
+        //public void GetRecordCount()
+        //{
+        //    //Arrange
+        //     int recordCount = 0;
             
-            //Act
-             recordCount = accessDB.GetRecordCount("Person");
+        //    //Act
+        //     recordCount = (int)accessDB.GetRecordCount("Person");
             
-            //Assert
-            Assert.AreEqual(2,recordCount, "recordCount");
-        }
+        //    //Assert
+        //    Assert.AreEqual(2,recordCount, "recordCount");
+        //}
 
         
     }
